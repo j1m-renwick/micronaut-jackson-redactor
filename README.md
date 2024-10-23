@@ -48,7 +48,7 @@ Create an implementation of RedactorConfiguration:
 ```
     package com.example;
     
-    import com.annotation.interfaces.RedactorDecisioner;
+    import com.annotation.interfaces.RedactorConfiguration;
     import io.micronaut.context.annotation.Value;
     import jakarta.inject.Singleton;
     
