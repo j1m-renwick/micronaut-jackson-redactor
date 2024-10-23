@@ -95,9 +95,9 @@ Test the redaction occurs:
 
 The package currently offers three redaction serializer options:
 
-- EXES_REDACTION - replaces with the constant 'XXXX'
-- CARET_TEXT_REDACTION - replaces with the constant '<REDACTED>'
-- ALPHANUMERIC_REDACTION - replaces alphanumeric characters with either 'X' or '9"
+- EXES_REDACTION - replaces with the constant "XXXX"
+- CARET_TEXT_REDACTION - replaces with the constant "\<REDACTED>"
+- ALPHANUMERIC_REDACTION - replaces alphanumeric characters with either "X" or "9"
 
 You can specify one of these in your `@Redact` field annotations:
 

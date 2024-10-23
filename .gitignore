@@ -9,6 +9,7 @@ out/
 *.iml
 *.ipr
 *.iws
+*.env
 .project
 .settings
 .classpath
