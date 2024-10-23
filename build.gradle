@@ -1,0 +1,81 @@
+plugins {
+    id('java')
+    id("io.micronaut.application") version "4.4.2"
+    id 'maven-publish'
+    // needed?
+    //    id("com.github.johnrengelman.shadow") version "8.1.1"
+    //    id("io.micronaut.aot") version "4.4.2"
+}
+
+version = "0.1"
+group = "com.wrennix"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation("io.micronaut:micronaut-jackson-databind")
+
+    compileOnly("io.micronaut:micronaut-core-processor")
+    compileOnly("io.micronaut.sourcegen:micronaut-sourcegen-model")
+    compileOnly("io.micronaut.sourcegen:micronaut-sourcegen-generator")
+
+    compileOnly "io.micronaut:micronaut-inject-groovy"
+
+    compileOnly('org.reflections:reflections:0.10.2')
+
+    testImplementation('org.mockito:mockito-junit-jupiter:5.14.2')
+    testCompileOnly("org.junit.jupiter:junit-jupiter-params:5.10.0")
+
+}
+
+
+application {
+    mainClass = "com.wrennix.Application"
+}
+java {
+    sourceCompatibility = JavaVersion.toVersion("21")
+    targetCompatibility = JavaVersion.toVersion("21")
+}
+
+
+graalvmNative.toolchainDetection = false
+
+micronaut {
+    runtime("netty")
+    testRuntime("junit5")
+    processing {
+        incremental(true)
+        annotations("com.wrennix.*")
+    }
+//    aot {
+//        // Please review carefully the optimizations enabled below
+//        // Check https://micronaut-projects.github.io/micronaut-aot/latest/guide/ for more details
+//        optimizeServiceLoading = false
+//        convertYamlToJava = false
+//        precomputeOperations = true
+//        cacheEnvironment = true
+//        optimizeClassLoading = true
+//        deduceEnvironment = true
+//        optimizeNetty = true
+//        replaceLogbackXml = true
+//    }
+}
+
+
+//tasks.named("dockerfileNative") {
+//    jdkVersion = "21"
+//}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
