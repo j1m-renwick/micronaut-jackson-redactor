@@ -61,19 +61,20 @@ Create an implementation of RedactorConfiguration:
         /**
          *
          * @return true if redaction should be applied at application startup.
+         *
          */
         boolean shouldRedact() {
             return redactionEnabled;
         }
     
         /**
-         * A package name that encompasses all the POGOs that should be targeted 
-           for redaction processing.
+         * 
+         * @return a package name that encompasses all the POJOs and POGOs 
+           that should be targeted for redaction processing.
          *
-         * @return your project package path or a relevant subpath.
          */
         String rootPackage() {
-            return "com.example.myproject.mypogos"
+            return "com.example.myproject.mypojos"
         }
     }
 ```
@@ -102,12 +103,8 @@ The package currently offers three redaction serializer options:
 You can specify one of these in your `@Redact` field annotations:
 
 ```
-    ...
-
     @Redact(redactor = RedactorType.ALPHANUMERIC_REDACTION)
     String myfield;
-    
-    ...
 ```
 
 > **NOTE:**
