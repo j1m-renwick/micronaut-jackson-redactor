@@ -157,9 +157,8 @@ public class JavaRedactionVisitor implements TypeElementVisitor<Redactable, Obje
         context.visitGeneratedSourceFile(classDef.getPackageName(), classDef.getSimpleName(), element)
             .ifPresent(generatedFile -> {
                 try {
-                    context.info("Saving redaction class : " + classDef.getSimpleName());
+                    context.info("Adding redaction class : " + classDef.getSimpleName());
                     generatedFile.write(writer -> sourceGenerator.write(classDef, writer));
-                    context.info("Saved redaction class : " + classDef.getSimpleName());
                 } catch (Exception e) {
                     throw new ProcessingException(element, e.getMessage(), e);
                 }

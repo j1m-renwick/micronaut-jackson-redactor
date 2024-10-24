@@ -16,6 +16,7 @@ import com.wrennix.annotations.Redact;
 import com.wrennix.annotations.RedactableMetaData;
 import groovyjarjarasm.asm.Opcodes;
 import java.util.List;
+import java.util.Objects;
 import java.util.logging.Logger;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.AnnotationNode;
@@ -38,26 +39,55 @@ public class MixinClassTransformation implements ASTTransformation {
 
   public void visit(ASTNode[] nodes, SourceUnit source) {
     ClassNode existingClass = (ClassNode) nodes[1];
-      LOG.info("Redaction processing started for Groovy class: " + existingClass.getName());
+    String existingClassName = existingClass.getName();
+    LOG.info("Redaction processing started for Groovy class: " + existingClassName);
+
+    AnnotationNode annotationNode = (AnnotationNode) nodes[0];
+    Expression specifiedMixin = annotationNode.getMember(ANNOTATION_REDACTABLE_MIXIN);
 
     String newClassName = existingClass.getName() + MIXIN_FILE_SUFFIX;
 
-    ClassNode newClass = new ClassNode(newClassName, Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT, ClassNode.SUPER);
+    ClassNode newClass = createMixinClass(newClassName, specifiedMixin, existingClass);
+    AnnotationNode metaclassAnnotation = createMetaAnnotation(specifiedMixin, annotationNode, existingClassName, newClassName);
 
-    AnnotationNode annotationNode = (AnnotationNode) nodes[0];
+    newClass.addAnnotation(metaclassAnnotation);
+
+    LOG.info("Adding redaction class : " + newClassName);
+    // add the new class to the AST
+    source.getAST().addClass(newClass);
+
+  }
+
+  AnnotationNode createMetaAnnotation(Expression specifiedMixin, AnnotationNode annotationNode, String existingClassName, String newClassName) {
     AnnotationNode metaclassAnnotation = new AnnotationNode(ClassHelper.make(RedactableMetaData.class));
 
-    // MIXIN LOGIC
+    metaclassAnnotation.addMember(ANNOTATION_REDACTABLE_METADATA_TO,
+        Objects.requireNonNullElseGet(specifiedMixin, () -> new ConstantExpression(newClassName)));
 
-    Expression mixin = annotationNode.getMember(ANNOTATION_REDACTABLE_MIXIN);
+    Expression proxy = annotationNode.getMember(ANNOTATION_REDACTABLE_PROXY_FOR);
 
-    if (mixin == null) {
+    ListExpression sourceList = new ListExpression();
+    sourceList.addExpression(new ConstantExpression(existingClassName));
+
+    if (proxy != null) {
+      sourceList.addExpression(new ConstantExpression(proxy.getText()));
+    }
+
+    metaclassAnnotation.addMember(ANNOTATION_REDACTABLE_METADATA_FROM, sourceList);
+    return metaclassAnnotation;
+  }
+
+  ClassNode createMixinClass(String newClassName, Expression specifiedMixin, ClassNode existingClass) {
+
+    ClassNode newClass = new ClassNode(newClassName, Opcodes.ACC_PUBLIC | Opcodes.ACC_ABSTRACT, ClassNode.SUPER);
+
+    if (specifiedMixin == null) {
       List<FieldNode> fields = existingClass.getFields();
       for (FieldNode field : fields) {
         List<AnnotationNode> fieldAnnotations = field.getAnnotations(new ClassNode(Redact.class));
         if (!fieldAnnotations.isEmpty()) {
-          System.out.println("@Redact found on field "
-              + field.getType().getTypeClass().getName() + " : " + field.getName());
+//          System.out.println("@Redact found on field "
+//              + field.getType().getTypeClass().getName() + " : " + field.getName());
 
           if (!(ClassHelper.isPrimitiveType(field.getType()) || ClassHelper.isStringType(field.getType()))) {
             throw new RuntimeException("Cannot apply @Redact to a non-primitive or non-String type for field: " + field.getName());
@@ -86,8 +116,6 @@ public class MixinClassTransformation implements ASTTransformation {
           newClass.addField(newField);
         }
       }
-      metaclassAnnotation.addMember(ANNOTATION_REDACTABLE_METADATA_TO, new ConstantExpression(newClassName));
-
     } else {
       List<String> annotatedFields = existingClass.getFields()
           .stream()
@@ -99,24 +127,9 @@ public class MixinClassTransformation implements ASTTransformation {
         throw new RuntimeException("The fields: " + annotatedFields + " on class: " + existingClass.getName()
             + " should not have @Redact annotations, as these will be ignored!");
       }
-      metaclassAnnotation.addMember(ANNOTATION_REDACTABLE_METADATA_TO, mixin);
     }
 
-    // PROXY LOGIC
-
-    Expression proxy = annotationNode.getMember(ANNOTATION_REDACTABLE_PROXY_FOR);
-
-    ListExpression sourceList = new ListExpression();
-    sourceList.addExpression(new ConstantExpression(existingClass.getName()));
-
-    if (proxy != null) {
-      sourceList.addExpression(new ConstantExpression(proxy.getText()));
-    }
-
-    metaclassAnnotation.addMember(ANNOTATION_REDACTABLE_METADATA_FROM, sourceList);
-    newClass.addAnnotation(metaclassAnnotation);
-
-    source.getAST().addClass(newClass);
-
+    return newClass;
   }
+
 }
