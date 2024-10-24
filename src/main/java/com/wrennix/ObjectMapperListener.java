@@ -12,6 +12,7 @@ import jakarta.inject.Singleton;
 import java.lang.annotation.Annotation;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.logging.Logger;
 import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ClasspathHelper;
@@ -19,7 +20,10 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
 @Singleton
+
 public class ObjectMapperListener implements BeanCreatedEventListener<ObjectMapper> {
+
+    private static final Logger LOG = Logger.getLogger(ObjectMapperListener.class.getName());
 
     @Inject
     RedactorConfiguration redactorConfiguration;
@@ -30,13 +34,13 @@ public class ObjectMapperListener implements BeanCreatedEventListener<ObjectMapp
         ObjectMapper objectMapper =  (ObjectMapper) event.getBean();
 
         if (redactorConfiguration.shouldRedact()) {
-            System.out.println("Redaction is enabled.");
+            LOG.info("Redaction is enabled.");
 
             for (Class<?> clazz: findClassesWithAnnotation(RedactableMetaData.class)) {
                 processFile(clazz, objectMapper);
             }
         } else {
-            System.out.println("Redaction is NOT enabled.");
+            LOG.info("Redaction is *NOT* enabled.");
         }
         return objectMapper;
     }

@@ -1,4 +1,4 @@
-package com.wrennix.annotations;
+package com.wrennix;
 
 public class Constants {
 

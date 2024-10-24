@@ -1,13 +1,12 @@
 package com.wrennix;
 
-import static com.wrennix.annotations.Constants.ANNOTATION_JSON_SERIALIZE_USING;
-import static com.wrennix.annotations.Constants.MIXIN_FILE_SUFFIX;
-import static com.wrennix.annotations.Constants.ANNOTATION_REDACTABLE_METADATA_FROM;
-import static com.wrennix.annotations.Constants.ANNOTATION_REDACTABLE_METADATA_TO;
-import static com.wrennix.annotations.Constants.ANNOTATION_REDACTABLE_MIXIN;
-import static com.wrennix.annotations.Constants.ANNOTATION_REDACTABLE_PROXY_FOR;
-import static com.wrennix.annotations.Constants.ANNOTATION_REDACT_REDACTOR_DEFAULT;
-import static com.wrennix.annotations.Constants.ANNOTATION_REDACT_REDACTOR;
+import static com.wrennix.Constants.ANNOTATION_JSON_SERIALIZE_USING;
+import static com.wrennix.Constants.MIXIN_FILE_SUFFIX;
+import static com.wrennix.Constants.ANNOTATION_REDACTABLE_METADATA_FROM;
+import static com.wrennix.Constants.ANNOTATION_REDACTABLE_METADATA_TO;
+import static com.wrennix.Constants.ANNOTATION_REDACTABLE_MIXIN;
+import static com.wrennix.Constants.ANNOTATION_REDACTABLE_PROXY_FOR;
+import static com.wrennix.Constants.ANNOTATION_REDACT_REDACTOR;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
